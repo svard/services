@@ -13,6 +13,7 @@
 
 (defroutes temperature-routes
   (GET "/" [] t/temperature)
+  (POST "/" [] t/temperature)
   (GET "/current" [] t/current))
 
 (defroutes light-routes
@@ -33,7 +34,7 @@
 (defn init []
   (timbre/set-level! :debug)
   (info "Starting services")
-  (mb/connect-and-subscribe! "192.168.0.108" "automation" "temps" r/handle-rain-measure))
+  (mb/connect-and-subscribe! "192.168.0.108" "automation" "rain" r/handle-rain-measure))
 
 (defn destroy []
   (info "Shutting down services...")

@@ -1,4 +1,4 @@
-(defproject services "0.1.1"
+(defproject services "0.1.2"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.7.0-alpha1"]
