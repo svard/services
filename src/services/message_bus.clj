@@ -4,6 +4,7 @@
             [langohr.exchange :as le]
             [langohr.queue :as lq]
             [langohr.consumers :as lc]
+            [langohr.basic :as lb]
             [taoensso.timbre :as timbre]))
 
 (timbre/refer-timbre)
@@ -13,11 +14,17 @@
 (defn connect-and-subscribe! [host exchange routing-key f]
   (reset! conn (rmq/connect {:host host}))
   (let [ch (lch/open @conn)]
-    (le/declare ch exchange "direct")
-    (let [q (.getQueue (lq/declare ch (str "services-queue@" (.. java.net.InetAddress getLocalHost getHostName)) {:exclusive false :auto-delete true}))]
+;    (le/declare ch exchange "direct")
+    (let [q (.getQueue (lq/declare ch
+                                   (str "services-queue@" (.. java.net.InetAddress getLocalHost getHostName))
+                                   {:exclusive false :auto-delete true}))]
       (lq/bind ch q exchange {:routing-key routing-key})
       (lc/subscribe ch q f {:auto-ack true}))))
 
+(defn publish [exchange routing-key msg]
+  (let [ch (lch/open @conn)]
+    (lb/publish ch exchange routing-key msg)))
+    
 (defn close! []
   (info "Closing rabbit connection")
   (reset! conn (rmq/close @conn)))
