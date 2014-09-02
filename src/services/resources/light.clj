@@ -15,7 +15,7 @@
 (timbre/refer-timbre)
 
 (def conn (mongo/connect {:host "192.168.0.108" :port 27017}))
-(def db (mongo/get-db conn "temperature_db"))
+(def db (mongo/get-db conn "services_db"))
 (def collection "lights")
 (def redis-conn {:spec {:host "192.168.0.108" :port 6379}})
 

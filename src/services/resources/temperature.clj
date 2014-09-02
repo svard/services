@@ -1,6 +1,7 @@
 (ns services.resources.temperature
   (:require [clojure.string :as string]
             [liberator.core :refer [defresource]]
+            [liberator.representation :refer [as-response]]
             [monger.core :as mongo]
             [monger.collection :as coll]
             [monger.query :as query]
@@ -17,8 +18,9 @@
 (timbre/refer-timbre)
 
 (def conn (mongo/connect {:host "192.168.0.108" :port 27017}))
-(def db (mongo/get-db conn "temperature_db"))
+(def db (mongo/get-db conn "services_db"))
 (def collection "temperatures")
+(def allow-origin "http://www.kristofersvard.se")
 (def temp-transducer (map #(:temperature %)))
 (def time-format (f/formatter "yyyy-MM-dd HH:mm:ss"))
 
@@ -26,7 +28,7 @@
   ([]
     (query/with-collection db collection
       (query/find {})
-      (query/fields [:temperature :dateStr :date :deviceId :deviceName])))
+      (query/fields [:temperature :dateStr :date :deviceId :deviceName :d])))
   ([range-fn]
     (let [[start end] (range-fn)]
       (query/with-collection db collection
@@ -65,6 +67,9 @@
 
 (defresource current [req]
   :available-media-types ["application/json"]
+  :as-response (fn [d ctx]
+                 (-> (as-response d ctx)
+                     (assoc-in [:headers "Access-Control-Allow-Origin"] allow-origin)))
   :handle-ok (fn [_]
                (let [today (date/today)
                      range-fn (partial date/get-date-start-end-timestamp today today)
@@ -88,6 +93,9 @@
 (defresource temperature [{:keys [params] :as req}]
   :available-media-types ["application/json"]
   :allowed-methods [:get :post]
+  :as-response (fn [d ctx]
+                 (-> (as-response d ctx)
+                     (assoc-in [:headers "Access-Control-Allow-Origin"] allow-origin)))
   :exists? (fn [_]
              (get-resource params))
   :handle-ok :entity
