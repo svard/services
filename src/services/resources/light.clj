@@ -48,6 +48,17 @@
 (defn- publish-light-event [event]
   (mb/publish "automation" "light" (json/write-str event)))
 
+(defn- current-state [id]
+  (wcar* (car/hget (str "light:" id) "state")))
+
+(defn- check-and-switch [id event]
+  (when-not (= (:state event)
+               (current-state (:id event)))
+    (switch id (string/upper-case (:state event)))
+    (cache-light-event event)
+    (publish-light-event event)
+    (store-light-event event)))
+
 (defresource lights [req]
   :available-media-types ["application/json"]
   :allowed-methods [:get :put]
@@ -58,10 +69,7 @@
               (let [event {:id id
                            :state (string/upper-case (:state body))
                            :date (l/local-now)}]
-                (switch id (string/upper-case (:state body)))
-                (cache-light-event event)
-                (publish-light-event event)
-                (store-light-event event))))))
+                (check-and-switch id event))))))
 
 (defresource one-light [id]
   :available-media-types ["application/json"]
@@ -77,7 +85,4 @@
                 event {:id (read-string id)
                        :state (string/upper-case (:state body))
                        :date (l/local-now)}]
-            (switch id (string/upper-case (:state body)))
-            (cache-light-event event)
-            (publish-light-event event)
-            (store-light-event event))))
+            (check-and-switch id event))))
