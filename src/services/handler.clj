@@ -7,7 +7,8 @@
             [services.resources.rain :as r]
             [services.message-bus :as mb]
             [taoensso.timbre :as timbre]
-            [ring.middleware.format :as format]))
+            [ring.middleware.format :as format]
+            [ring.middleware.jsonp :as jsonp]))
 
 (timbre/refer-timbre)
 
@@ -43,5 +44,7 @@
   (mb/close!))
 
 (def app
-  (-> (handler/api api-routes)
+  (-> api-routes
+      (jsonp/wrap-json-with-padding)
+      (handler/api)
       (format/wrap-restful-format :formats [:json-kw])))

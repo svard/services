@@ -1,10 +1,11 @@
-(defproject services "1.0.3"
+(defproject services "1.0.4"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.7.0-alpha1"]
                  [compojure "1.1.8"]
                  [ring/ring-core "1.3.0"]
                  [ring-middleware-format "0.4.0"]
+                 [ring.middleware.jsonp "0.1.6"]
                  [liberator "0.12.0"]
                  [org.clojure/data.json "0.2.4"]
                  [com.novemberain/langohr "3.0.0-rc2"]
