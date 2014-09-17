@@ -19,7 +19,7 @@
 
 (defroutes light-routes
   (GET "/" [] l/lights)
-  (GET "/:id" [id] (l/one-light id))
+  (GET "/:id" [id] (partial l/one-light id))
   (PUT "/" [] l/lights)
   (PUT "/:id" [id] (l/one-light id)))
 

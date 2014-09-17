@@ -71,7 +71,7 @@
                            :date (l/local-now)}]
                 (check-and-switch id event))))))
 
-(defresource one-light [id]
+(defresource one-light [id {:keys [params] :as req}]
   :available-media-types ["application/json"]
   :allowed-methods [:get :put]
   :exists? (fn [_]
@@ -79,7 +79,11 @@
                (if (seq light)
                  {:entity light}
                  false)))
-  :handle-ok :entity
+  :handle-ok (if (:state params)
+               (check-and-switch (:id params) {:id (:id params)
+                                               :state (string/upper-case (:state params))
+                                               :date (l/local-now)})
+               :entity)
   :put! (fn [ctx]
           (let [body (get-in ctx [:request :body-params])
                 event {:id (read-string id)
