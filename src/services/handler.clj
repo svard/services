@@ -21,7 +21,7 @@
   (GET "/" [] l/lights)
   (GET "/:id" [id] (partial l/one-light id))
   (PUT "/" [] l/lights)
-  (PUT "/:id" [id] (l/one-light id)))
+  (PUT "/:id" [id] (partial l/one-light id)))
 
 (defroutes rain-routes
   (GET "/" [] r/rain))

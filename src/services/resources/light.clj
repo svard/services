@@ -80,9 +80,11 @@
                  {:entity light}
                  false)))
   :handle-ok (if (:state params)
-               (check-and-switch (:id params) {:id (:id params)
-                                               :state (string/upper-case (:state params))
-                                               :date (l/local-now)})
+               (do
+                 (check-and-switch (:id params) {:id id
+                                                 :state (string/upper-case (:state params))
+                                                 :date (l/local-now)})
+                 (find-one id))
                :entity)
   :put! (fn [ctx]
           (let [body (get-in ctx [:request :body-params])
