@@ -15,7 +15,8 @@
 (defroutes temperature-routes
   (GET "/" [] t/temperature)
   (POST "/" [] t/temperature)
-  (GET "/current" [] t/current))
+  (GET "/current" [] t/current)
+  (GET "/stats" [] t/stats))
 
 (defroutes light-routes
   (GET "/" [] l/lights)

@@ -103,3 +103,14 @@
            (let [body (get-in ctx [:request :body-params])]
              (info (str "Storing temp " body))
              {:location (str "/api/temperature/" (store-temp body))})))
+
+(defresource stats [{:keys [params] :as req}]
+  :available-media-types ["application/json"]
+  :allowed-methods [:get]
+  :exists? (fn [_]
+             (get-resource params))
+  :handle-ok (fn [ctx]
+               (let [mean (mean-temp (:entity ctx))]
+                 {:mean mean
+                  :max (:temperature (apply max-key :temperature (:entity ctx)))
+                  :min (:temperature (apply min-key :temperature (:entity ctx)))})))
