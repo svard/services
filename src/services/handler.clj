@@ -28,7 +28,6 @@
   (GET "/" [] r/rain))
 
 (defroutes api-routes
-  (GET "/" [] "Hello World")
   (context "/api/temperature" [] temperature-routes)
   (context "/api/light" [] light-routes)
   (context "/api/rain" [] rain-routes)

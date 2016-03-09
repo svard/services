@@ -9,22 +9,23 @@
 
 (timbre/refer-timbre)
 
-(def conn (atom nil))
+(def rabbit (atom {}))
 
 (defn connect-and-subscribe! [host exchange routing-key f]
-  (reset! conn (rmq/connect {:host host}))
-  (let [ch (lch/open @conn)]
-;    (le/declare ch exchange "direct")
-    (let [q (.getQueue (lq/declare ch
-                                   (str "services-queue@" (.. java.net.InetAddress getLocalHost getHostName))
-                                   {:exclusive false :auto-delete true}))]
-      (lq/bind ch q exchange {:routing-key routing-key})
-      (lc/subscribe ch q f {:auto-ack true}))))
+  (let [conn (rmq/connect {:host host})
+        chan (lch/open conn)
+        q (.getQueue (lq/declare chan
+                                 (str "services-queue@" (.. java.net.InetAddress getLocalHost getHostName))
+                                 {:exclusive false :auto-delete true}))]
+    (swap! rabbit assoc :conn conn :chan chan)
+    (lq/bind chan q exchange {:routing-key routing-key})
+    (lc/subscribe chan q f {:auto-ack true})))
 
 (defn publish [exchange routing-key msg]
-  (let [ch (lch/open @conn)]
-    (lb/publish ch exchange routing-key msg)))
-    
+  (lb/publish (:chan @rabbit) exchange routing-key msg))
+
 (defn close! []
   (info "Closing rabbit connection")
-  (reset! conn (rmq/close @conn)))
+  (rmq/close (:chan @rabbit))
+  (rmq/close (:conn @rabbit))
+  (reset! rabbit {}))
